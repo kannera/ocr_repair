@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import json
 from fix_tools import *
 import re
@@ -14,6 +15,8 @@ with open("resources/test_list.txt", "r", encoding="utf-8") as f:
 
 with open("resources/trigram_list.json", "r", encoding="utf-8") as f:
     trigram_table = json.load(f)
+
+ensure_dbs()
 
 # necessary resources are built here.
 
@@ -95,6 +98,3 @@ def analyse(word, n=3):
 #print(word_probability_table["kostaaksensa"]*maksakoon[1]/word_probability_table["nonce"])          
 #print(correction_probabilities["f"])
 #print(scramble_probabilities["f"])
-
-
-

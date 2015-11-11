@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 import json
 import re
 import operator
+import dbm
 
 INPUT = 0
 OUTPUT = 1
@@ -167,9 +169,6 @@ def run_through_matrix(word, correction_matrix, table):
 
     return fragments
 
-
-def get_word_probability(word):
-
     corpus_sizes = { "182x" : {"tokens" : 575179,  "types"  : 65941 },
                      "183x" : {"tokens" : 1377160, "types"  : 128880 },
                      "184x" : {"tokens"  : 2998726, "types" : 197429 },
@@ -179,13 +178,22 @@ def get_word_probability(word):
                      "188x" : {"tokens"  : 276140381, "types": 2824262 }, 
                      "189x" : {"tokens"  : 732014562, "types": 4849579 }}
 
-    freqs = []    
+def ensure_dbs():
     for corpus in corpus_sizes:
-        
+        try:
+            dbm.open("resources/grams/OF_klk_fi_1grams_"+corpus+"-20140905.db")
+        except dbm.error:
+            with dbm.open("resources/grams/OF_klk_fi_1grams_"+corpus+"-20140905.db","c") as db:
         with open("resources/grams/OF_klk_fi_1grams_"+corpus+"-20140905", "r", encoding="utf-8" ) as f:
-            stop = False
-            freq = run_list(f, word)
+                    for line in f:
+                        w = re.split("\t", line)
+                        db[w[0]]=w[1]
 
+def get_word_probability(word):
+    freqs = []
+    for corpus in corpus_sizes:
+        with dbm.open("resources/grams/OF_klk_fi_1grams_"+corpus+"-20140905.db") as db:
+            freq = int(db.get(word,'0'))+1
         freq = freq/(corpus_sizes[corpus]["types"]+corpus_sizes[corpus]["tokens"])
         freqs.append(freq)
     return sum(freqs)/len(freqs)
@@ -222,5 +230,3 @@ def get_top_100_fragments(fragments):
     else: 
         
         return sorted_fragments
-
-
